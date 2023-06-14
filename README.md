@@ -52,7 +52,7 @@ import numpy as np
 import os 
 import cv2
 
-raw_data = np.load(rnflt_file, allow_pickle=True)
-oct_img = raw_data['oct_bscans']
+npz_data = np.load(one_npz_file, allow_pickle=True)
+oct_img = npz_data['oct_bscans']
 new_bscan = cv2.resize(oct_img[0,:,:], (600, 200))
 ```
