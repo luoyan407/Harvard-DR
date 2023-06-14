@@ -1,0 +1,2 @@
+Logging to ./results/dr_oct_bscans_hispanic_baseline/fullysup_efficientnet_oct_bscans_Taskcls_lr5e-5_bz18
+trn patients 2100 with 2100 samples, val patients 900 with 900 samples

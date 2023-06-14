@@ -1,0 +1,2 @@
+epoch, es_acc, acc, acc_class0, acc_class1, es_auc, wgd_auc, auc, auc_class0, auc_class1, wgd_f1, f1, es_sensitivity, sensitivity, sensitivity_class0, sensitivity_class1, es_specificity, specificity, specificity_class0, specificity_class1, dpd, dpr, eod, eor, path
+1, 0.0000, 0.9400, 0.9402, 0.9333, 0.0000, 0.0020, 0.9577, 0.9576, 0.9617, 0.0006, 0.3230, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, ./results/dr_fundus_hispanic_baseline/fullysup_swin_fundus_Taskcls_lr5e-5_bz18_auc0.9577

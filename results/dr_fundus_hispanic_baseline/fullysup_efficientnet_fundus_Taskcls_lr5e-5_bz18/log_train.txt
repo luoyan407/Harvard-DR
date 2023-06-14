@@ -1,0 +1,47 @@
+Logging to ./results/dr_fundus_hispanic_baseline/fullysup_efficientnet_fundus_Taskcls_lr5e-5_bz18
+trn patients 2100 with 2100 samples, val patients 900 with 900 samples
+testing group information:
+[870, 30]
+training group information:
+[2015, 73]
+---- best AUC 0.9621 at epoch 0
+---- best AUC at 0-attr 0.9618 at epoch 0
+---- best AUC at 1-attr 0.9722 at epoch 0
+-------------------------------------
+| epoch                  | 0        |
+| trn_acc                | 0.877    |
+| trn_acc_class0         | 0.878    |
+| trn_acc_class1         | 0.849    |
+| trn_auc                | 0.945    |
+| trn_auc_class0         | 0.947    |
+| trn_auc_class1         | 0.881    |
+| trn_dpd                | 0.0166   |
+| trn_dpr                | 0        |
+| trn_eod                | 0        |
+| trn_eor                | 0        |
+| trn_loss               | 0.611    |
+| val_acc                | 0.94     |
+| val_acc_class0         | 0.94     |
+| val_acc_class1         | 0.933    |
+| val_auc                | 0.962    |
+| val_auc_class0         | 0.962    |
+| val_auc_class1         | 0.972    |
+| val_dpd                | 0        |
+| val_dpr                | 0        |
+| val_eod                | 0        |
+| val_eor                | 0        |
+| val_es_acc             | 0        |
+| val_es_auc             | 0        |
+| val_es_sensitivity     | 0        |
+| val_es_specificity     | 0        |
+| val_f1                 | 0.323    |
+| val_loss               | 0.28     |
+| val_sensitivity        | 0        |
+| val_sensitivity_class0 | 0        |
+| val_sensitivity_class1 | 0        |
+| val_specificity        | 0        |
+| val_specificity_class0 | 0        |
+| val_specificity_class1 | 0        |
+| val_wgd_auc            | 0.0052   |
+| val_wgd_f1             | 0.0006   |
+-------------------------------------
