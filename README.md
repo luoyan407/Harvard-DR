@@ -30,10 +30,33 @@ Each npz file contains the following attributes:
 
 ## Train and Evaluate Models
 
-We provide a script to train and evalute the models 
+We provide scripts to train and evalute the 2D, 3D, and fairness models 
 
+For training 2D models please run
 ```shell
-./train_dr_fair.sh
+./scripts/train_dr_fair.sh
+```
+
+For training 3D models please run
+```shell
+./scripts/train_dr_fair_3d.sh
+```
+
+
+For training fair 2D adversarial methods please run
+```shell
+./scripts/train_dr_fair_2d_adv.sh
+```
+
+For training fair 3D adversarial methods please run
+```shell
+./scripts/train_dr_fair_3d_adv.sh
+```
+
+For training FSCL fairness method please run
+```shell
+./scripts/train_dr_fair_contrastive_pretrain.sh 
+./scripts/train_dr_fair_contrastive_finetune.sh
 ```
 
 Please ensure that you modify the data path to properly guide the process for accessing the data.
