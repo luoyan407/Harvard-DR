@@ -1,7 +1,7 @@
 import sys, os
 from PIL import Image
 import blobfile as bf
-from mpi4py import MPI
+# from mpi4py import MPI
 import numpy as np
 import random
 import csv
@@ -102,8 +102,8 @@ def cycle(iterable):
 class Harvard_Diabetic_Retinopathy(Dataset):
     # subset: train | val | test 
     def __init__(self, data_path='./data/', split_file='', subset='train', modality_type='rnflt', task='md', resolution=224, need_shift=True, stretch=1.0,
-                    depth=1, indices=None, attribute_type='race', transform=None, needBalance=False, split_ratio=-1, min_balance=False):
-
+                    depth=1, indices=None, attribute_type='race', transform=None, needBalance=False, split_ratio=-1, min_balance=False, args=None):
+        self.args = args
         self.data_path = data_path
         self.modality_type = modality_type
         self.subset = subset
@@ -153,6 +153,7 @@ class Harvard_Diabetic_Retinopathy(Dataset):
                 ttl_num_samples += len(v)
                 print(f'{k}-th identity training samples: {len(v)}')
             print(f'total number of training samples: {ttl_num_samples}')
+          
             self.class_samples_num = np.array(self.class_samples_num)
 
             # Oversample the classes with fewer elements than the max
@@ -203,9 +204,14 @@ class Harvard_Diabetic_Retinopathy(Dataset):
             for img in oct_img:
                 oct_img_array.append(resize(img, (self.resolution, self.resolution)))
             data_sample = np.stack([oct_img_array]*(1), axis=0)
-            data_sample = data_sample.squeeze().astype(np.float32)
+
+            if self.args.model_type == 'resnet50' or self.args.model_type == 'resnet18': 
+                data_sample = data_sample.astype(np.float32)
+            else: 
+                data_sample = data_sample.squeeze().astype(np.float32)
+
             if self.transform:
-                data_sample = self.transform(data_sample).float()
+                data_sample = self.transform(data_sample)
 
         y = torch.tensor(float(raw_data['dr_class'].item()))
 
@@ -224,6 +230,133 @@ class Harvard_Diabetic_Retinopathy(Dataset):
             
 
         return data_sample, y, attr
+
+
+
+class HAVO_Diabetic_Retinopathy_Contrast(Dataset):
+    # subset: train | val | test | unmatch
+    def __init__(self, data_path='./data/', split_file='', subset='train', modality_type='rnflt', task='md', resolution=224, need_shift=True, stretch=1.0,
+                    depth=1, indices=None, attribute_type='race', transform=None, needBalance=False, split_ratio=-1, min_balance=False):
+
+        self.data_path = data_path
+        self.modality_type = modality_type
+        self.subset = subset
+        self.task = task
+        self.attribute_type = attribute_type
+        self.transform = transform
+        self.needBalance = needBalance
+        self.min_balance = min_balance
+
+        self.data_files = find_all_files(self.data_path, f'{subset}_*.npz')
+        if indices is not None:
+            self.data_files = [self.data_files[i] for i in indices]
+        if split_ratio > 0:
+            random.shuffle(self.data_files)
+            self.data_files = self.data_files[:int(len(self.data_files)*split_ratio)]
+
+        self.race_mapping = {'Asian':0, 
+                'Black or African American':1, 
+                'White or Caucasian':2}
+        
+        self.normalize_vf = 30.0
+
+        self.balance_factor = 1.
+        self.label_samples = dict()
+        self.class_samples_num = None
+        self.balanced_max = 0
+        if self.subset == 'train' and self.needBalance:
+            for idx in range(0, len(self.data_files)):
+                rnflt_file = os.path.join(self.data_path, self.data_files[idx])
+                raw_data = np.load(rnflt_file, allow_pickle=True)
+                cur_label = raw_data['race'].item() # self.race_mapping[raw_data['race'].item()]
+                if cur_label not in self.label_samples:
+                    self.label_samples[cur_label] = list()
+                self.label_samples[cur_label].append(self.data_files[idx])
+                self.balanced_max = len(self.label_samples[cur_label]) \
+                    if len(self.label_samples[cur_label]) > self.balanced_max else self.balanced_max
+            ttl_num_samples = 0
+            self.class_samples_num = [0]*len(list(self.label_samples.keys()))
+            for i, (k,v) in enumerate(self.label_samples.items()):
+                self.class_samples_num[int(k)] = len(v)
+                ttl_num_samples += len(v)
+                print(f'{k}-th identity training samples: {len(v)}')
+            print(f'total number of training samples: {ttl_num_samples}')
+            self.class_samples_num = np.array(self.class_samples_num)
+
+            # Oversample the classes with fewer elements than the max
+            for i_label in self.label_samples:
+                while len(self.label_samples[i_label]) < self.balanced_max*self.balance_factor:
+                    self.label_samples[i_label].append(random.choice(self.label_samples[i_label]))
+            
+            data_files = []
+            for i, (k,v) in enumerate(self.label_samples.items()):
+                data_files = data_files + v
+            self.data_files = data_files
+
+        self.dataset_len = len(self.data_files)
+        self.depth = depth
+        self.size = 225
+        self.resolution = resolution
+        self.need_shift = need_shift
+        self.stretch = stretch
+
+    def __len__(self):
+        return self.dataset_len
+
+    def __getitem__(self, item):
+
+        rnflt_file = os.path.join(self.data_path, self.data_files[item])
+        sample_id = self.data_files[item][:self.data_files[item].find('.')]
+        raw_data = np.load(rnflt_file, allow_pickle=True)
+
+        if self.modality_type == 'fundus':
+            rnflt_sample = raw_data[self.modality_type]
+           
+            if rnflt_sample.shape[0] != self.resolution:
+                rnflt_sample = resize(rnflt_sample, (self.resolution, self.resolution))
+            if self.depth>1:
+                rnflt_sample = np.repeat(rnflt_sample, self.depth, axis=0)
+            rnflt_sample = np.transpose(rnflt_sample, (2, 0, 1))
+            data_sample = rnflt_sample.astype(np.float32)
+            
+        elif self.modality_type == 'rpet':
+            rnflt_sample = raw_data['macular']
+            if rnflt_sample.shape[0] != self.resolution:
+                rnflt_sample = resize(rnflt_sample, (self.resolution, self.resolution))
+            rnflt_sample = rnflt_sample[np.newaxis, :, :]
+            if self.depth>1:
+                rnflt_sample = np.repeat(rnflt_sample, self.depth, axis=0)
+            data_sample = rnflt_sample.astype(np.float32)
+        elif 'bscan' in self.modality_type:
+            print('contrastive methods not support 3d OCT yet!!')
+            exit(1)
+        
+        data_sample1 = np.transpose(data_sample, (1, 2, 0))
+        data_sample1 = Image.fromarray(np.uint8(data_sample1))
+        
+        if self.transform:
+             data_sample1 = self.transform(data_sample1)
+        
+        y = torch.tensor(float(raw_data['dr_class'].item()))
+
+        attr = 0
+        if self.attribute_type == 'race':
+            attr = raw_data['race'].item()
+
+            attr = torch.tensor(attr).int()
+        elif self.attribute_type == 'gender':
+            attr = torch.tensor(raw_data['male'].item()).int()
+        elif self.attribute_type == 'hispanic':
+            attr = torch.tensor(raw_data['hispanic'].item()).int()
+        elif self.attribute_type == 'maritalstatus':
+            attr = torch.tensor(raw_data['maritalstatus'].item()).int()
+        elif self.attribute_type == 'language':
+            attr = torch.tensor(raw_data['language'].item()).int()
+            
+
+        return data_sample1, data_sample, y, attr # , datadir
+
+
 
 def load_data_(
     *, data_dir, batch_size, image_size, class_cond=False, deterministic=False, isHAVO=0, subset='train'

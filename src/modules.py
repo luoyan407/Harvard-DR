@@ -255,8 +255,8 @@ def equity_scaled_sensitivity_specificity(output, target, attrs, alpha=1.):
 
 def get_num_by_group(train_dataset_loader, n_group=3):
     attr_num_dict = {}
-    for i, (input, target, attr) in enumerate(train_dataset_loader):
-        attr_array = attr.detach().cpu().numpy().tolist()
+    for i, data in enumerate(train_dataset_loader):
+        attr_array = data[-1].detach().cpu().numpy().tolist()
         for j in attr_array:
             if j not in attr_num_dict:
                 attr_num_dict[j] = 1
