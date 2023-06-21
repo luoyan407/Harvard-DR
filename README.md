@@ -7,7 +7,7 @@ Currently, there is no large state-of-the-art 3D imaging dataset for medical fai
 
 
 
-## Dowload Dataset
+## Download Dataset
 
 Harvard-DR is hosted on Harvard Dataverse and can be accessed at [Harvard-DR](https://doi.org/10.7910/DVN/NCAB6P).
 
@@ -30,7 +30,7 @@ Each npz file contains the following attributes:
 
 ## Train and Evaluate Models
 
-We provide scripts to train and evalute the 2D, 3D, and fairness models 
+We provide scripts to train and evaluate the 2D, 3D, and fairness models 
 
 For training 2D models please run
 ```shell
@@ -43,23 +43,23 @@ For training 3D models please run
 ```
 
 
-For training fair 2D adversarial methods please run
+For training 2D fair adversarial loss please run
 ```shell
 ./scripts/train_dr_fair_2d_adv.sh
 ```
 
-For training fair 3D adversarial methods please run
+For training 3D fair adversarial loss please run
 ```shell
 ./scripts/train_dr_fair_3d_adv.sh
 ```
 
-For training FSCL fairness method please run
+For training FSCL please run
 ```shell
 ./scripts/train_dr_fair_contrastive_pretrain.sh 
 ./scripts/train_dr_fair_contrastive_finetune.sh
 ```
 
-Please ensure that you modify the data path to properly guide the process for accessing the data.
+Please ensure that you modify the data path to properly guide the process of accessing the data.
 
 ## Aspect Ratio of OCT B-Scans
 
@@ -67,7 +67,7 @@ Please ensure that you modify the data path to properly guide the process for ac
 <img src="fig/bscan_resize.png" width="450">
 </p>
 
-In clinical practice, OCT devices commonly provide axial resolutions in the range of a few micrometers ($\mu m$). The axial resolution refers to the ability to distinguish between closely spaced structures along the depth axis of the scan. As shown in the figure, the aspect ratio of original OCT B-Scans is 3. Following the common practice, we resize the each OCT B-Scan to an aspect ratio of 1. In particular, the resolution is 200 $\times$ 200. 
+In clinical practice, OCT devices commonly provide axial resolutions in the range of a few micrometers ($\mu m$). The axial resolution refers to the ability to distinguish between closely spaced structures along the depth axis of the scan. As shown in the figure, the aspect ratio of the original OCT B-Scans is 3. Following the common practice, we resize each OCT B-Scan to an aspect ratio of 1. In particular, the resolution is 200 $\times$ 200. 
 
 To transfer back to the original aspect ratio, we can execute the following commands.
 ```python
